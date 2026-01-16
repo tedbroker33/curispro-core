@@ -1,13 +1,17 @@
 {
-  "name": "curispro-core",
-  "version": "3.3.0",
-  "private": true,
-  "type": "module",  // ADD THIS LINE
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "prepare": "husky install",
+    // ...your other scripts...
   },
-  // ... rest of your dependencies
+  "lint-staged": {
+    "package.json": [
+      "jsonlint"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "jsonlint": "^1.6.3"
+    // ...other dev deps...
+  }
 }

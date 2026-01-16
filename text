@@ -1,0 +1,20 @@
+curispro-core/
+├── app/
+│   ├── layout.tsx         # Root layout with Frequency Scripts
+│   ├── page.tsx           # Main Dashboard (Agent View)
+│   ├── admin/
+│   │   └── cockpit/       # Warren Buffett Financial Brain
+│   └── api/
+│       └── trigger.ts     # Webhooks for Stripe/Leads
+├── components/
+│   ├── OnboardingWizard.tsx # The 5-minute 33/6 flow
+│   ├── MarketCompare.tsx    # Real-time Group Quoting
+│   └── FrequencyTuner.tsx   # The "Hidden" GG33 Layer
+├── lib/
+│   ├── supabase.ts        # HIPAA Database Connection
+│   ├── stripe.ts          # Payment Links & Subscriptions
+│   └── numerology.ts      # The "Easter Egg" Logic
+├── public/
+│   └── curispro-logo.svg
+├── package.json
+└── .env.local             # YOUR SECRET KEYS

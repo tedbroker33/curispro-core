@@ -1,0 +1,13 @@
+{
+  "name": "curispro-core",
+  "version": "3.3.0",
+  "private": true,
+  "type": "module",  // ADD THIS LINE
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  // ... rest of your dependencies
+}

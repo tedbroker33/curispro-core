@@ -1,0 +1,5 @@
+npx husky install
+npx husky add .husky/pre-commit "npx lint-staged"
+git add .husky/pre-commit package.json
+git commit -m "Add pre-commit validation"
+git push origin main

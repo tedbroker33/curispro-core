@@ -1,0 +1,58 @@
+'use client'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { CheckCircle, ArrowRight, Zap } from 'lucide-react'
+
+export default function Wizard() {
+  const [step, setStep] = useState(1)
+
+  const steps = [
+    { title: "Connect Your Bank", desc: "Link Stripe for instant payouts.", icon: Zap },
+    { title: "Import Leads", desc: "Upload your CSV or scrape LinkedIn.", icon: ArrowRight },
+    { title: "Send First Quote", desc: "Use the Market Compare tool.", icon: CheckCircle }
+  ]
+
+  if (step > 3) return <div className="text-center p-10"><h2 className="text-3xl font-bold text-green-600">Ready to Scale</h2><p>Your $100k engine is live.</p></div>
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-xl border border-slate-200 mt-20">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-800">Onboarding: Agent {step}/3</h2>
+        <span className="text-sm bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">33/6 Path</span>
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        key={step}
+        className="space-y-6"
+      >
+        <div className="flex items-start gap-4">
+          <div className="bg-indigo-500 text-white p-3 rounded-lg">
+            {steps[step-1].icon}
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold">{steps[step-1].title}</h3>
+            <p className="text-slate-600 mt-1">{steps[step-1].desc}</p>
+          </div>
+        </div>
+
+        <button 
+          onClick={() => setStep(step + 1)}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-105"
+        >
+          Complete Step {step}
+        </button>
+      </motion.div>
+      
+      {/* Progress Bar */}
+      <div className="w-full bg-slate-200 rounded-full h-2 mt-8">
+        <motion.div 
+          className="bg-indigo-600 h-2 rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${(step/3)*100}%` }}
+        />
+      </div>
+    </div>
+  )
+}

@@ -1,3 +1,3 @@
-git add .
-git commit -m "Add root homepage to fix 404"
+git add .github/workflows/ci.yml
+git commit -m "Add CI pipeline"
 git push origin main

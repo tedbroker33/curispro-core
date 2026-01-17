@@ -1,29 +1,23 @@
-// lib/constants.ts - Aligned to GG33 33/6 Frequencies
-export const STANDARD_PRICE = 88; // Abundance
-export const BETA_PRICE = 61;     // Inner Wisdom
-export const MASTER_CAP = 33;     // Master Teacher Cap
-
-export const ELITE_AGENTS = {
-  'cjennings@myhst.com': { 
-    name: 'Corey Jennings', 
-    trial: 88, 
-    quote: "The measure of intelligence is the ability to change. Your loyalty is your power." 
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
-  'lwilds@myhst.com': { 
-    name: 'Lauren Wilds', 
-    trial: 88, 
-    quote: "You are a warrior of light; your devotion is the frequency that heals the team." 
-  },
-  'jdavern@myhst.com': { 
-    name: 'Joe Davern', 
-    trial: 1095, // 3 Years
-    quote: "Partnership is the fuel that allows common people to attain uncommon results. This legacy is ours." 
-  }
-};
-
-export const BETA_LIST = [
-  'vneely@myhst.com', 'raden@myhst.com', 'lgodoipiresgunnrussell@myhst.com',
-  'ctucker@myhst.com', 'thackney@myhst.com', 'wwoerner@myhst.com',
-  'mcountryman@myhst.com', 'alakejr@myhst.com', 'bduncan@myhst.com',
-  'candacep90@yahoo.com'
-];
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

@@ -1,6 +1,7 @@
-'use client'
+       'use client'
 import { useState, useEffect } from 'react';
-import { STANDARD_PRICE, BETA_PRICE, BETA_LIST, ELITE_AGENTS } from '@/lib/constants';
+// DIRECT PATH FIX BELOW
+import { STANDARD_PRICE, BETA_PRICE, BETA_LIST, ELITE_AGENTS } from '../lib/constants';
 
 export default function Home() {
   const [email, setEmail] = useState('');

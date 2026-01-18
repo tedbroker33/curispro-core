@@ -1,40 +1,98 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Zap, GraduationCap, BarChart3, Settings, HelpCircle, Lock } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { LayoutDashboard, Users, Zap, GraduationCap, ShieldCheck, Lock } from 'lucide-react';
+import { OWNER_EMAIL } from '../../lib/constants';
 
 export default function Dashboard() {
-  const searchParams = useSearchParams();
-  const userEmail = searchParams.get('email')?.toLowerCase() || '';
-  const isAdmin = userEmail === 'twenecki@myhst.com';
-  
-  const [step, setStep] = useState(0);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('cockpit');
+  const [tapCount, setTapCount] = useState(0);
   const [showHidden, setShowHidden] = useState(false);
+  const [email, setEmail] = useState('');
 
-  const wizardSteps = [
-    { target: 'nav', text: "Sequence 1: This is your Aligned Menu. Navigation flows in order of Priority." },
-    { target: 'overview', text: "Sequence 2: The Cockpit. Monitor your Rhythm and Frequency here." },
-    { target: 'hidden', text: "The Alpha Hook: Only those who seek the Code can enter the Hidden Panel." }
-  ];
+  useEffect(() => {
+    setEmail(localStorage.getItem('curispro_email') || '');
+    if (tapCount >= 3) { setShowHidden(true); setTapCount(0); }
+  }, [tapCount]);
+
+  const isTed = email === OWNER_EMAIL;
 
   return (
-    <div className="flex min-h-screen bg-[#0a0f1e] text-white font-sans">
+    <div className="flex min-h-screen bg-slate-950 text-white overflow-hidden">
       {/* SIDEBAR */}
-      <aside className="w-72 bg-[#111827] border-r border-slate-800 p-8 flex flex-col space-y-10">
-        <div className="text-3xl font-black text-[#4f46e5] italic">CURISPRO</div>
-        <nav className="flex-1 space-y-2" id="nav-tour">
-          <button onClick={() => setActiveTab('overview')} className="flex items-center space-x-4 w-full p-4 rounded-2xl bg-[#4f46e5]">
-            <LayoutDashboard size={20} /><span>Frequency Overview</span>
+      <aside className="w-72 bg-slate-900 border-r border-slate-800 p-6 flex flex-col space-y-8 shadow-2xl">
+        <div className="text-3xl font-black text-indigo-500 italic tracking-tighter">CURISPRO</div>
+        <nav className="flex-1 space-y-3">
+          <button onClick={() => setActiveTab('cockpit')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'cockpit' ? 'bg-indigo-600' : 'text-slate-400'}`}>
+            <LayoutDashboard /> <span className="font-bold">Financial Cockpit</span>
           </button>
           
-          {/* RESTRICTED TABS */}
-          {isAdmin ? (
-            <>
-              <button onClick={() => setActiveTab('scraper')} className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-400 hover:bg-slate-800"><Users size={20} /><span>GG33 Filter</span></button>
-              <button onClick={() => setActiveTab('cockpit')} className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-400 hover:bg-slate-800"><BarChart3 size={20} /><span>Financial Cockpit</span></button>
-            </>
+          {isTed ? (
+            <button onClick={() => setActiveTab('scanner')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'scanner' ? 'bg-indigo-600' : 'text-slate-400'}`}>
+              <Users /> <span className="font-bold">Frequency Scanner</span>
+            </button>
           ) : (
+            <div className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-700 cursor-not-allowed">
+              <Lock size={18}/> <span className="font-bold italic">Frequency Locked</span>
+            </div>
+          )}
+          
+          <button onClick={() => setActiveTab('academy')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'academy' ? 'bg-indigo-600' : 'text-slate-400'}`}>
+            <GraduationCap /> <span className="font-bold">Training Vault</span>
+          </button>
+        </nav>
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center space-x-3 text-emerald-400">
+           <ShieldCheck size={20} /> <span className="text-[10px] font-black uppercase tracking-widest leading-none">Vault Status:<br/>Sovereign</span>
+        </div>
+      </aside>
+
+      {/* MAIN STAGE */}
+      <main className="flex-1 p-12 relative">
+        {/* THE ORIENTATION WIZARD */}
+        <div className="absolute bottom-8 right-8 max-w-xs bg-slate-900 border border-indigo-500/30 p-6 rounded-3xl shadow-2xl animate-bounce">
+          <p className="text-indigo-400 font-bold text-xs uppercase mb-2 tracking-widest underline">Orientation Phase 1</p>
+          <p className="text-xs text-slate-300 leading-relaxed italic">"Start in the **Cockpit**. Verify your stats. Then, enter the **Vault** to align your outreach habits."</p>
+        </div>
+
+        {/* EASTER EGG TRIGGER */}
+        <div className="absolute top-4 right-8 text-[10px] text-slate-600 tracking-[0.4em] cursor-pointer hover:text-indigo-400" onClick={() => setTapCount(c => c+1)}>CODE: 33 • 11 • 22 • 88</div>
+
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold italic">The Armory</h1>
+          <p className="text-slate-500 mt-2 font-medium">Daily Rhythm: "Your frequency is sharp today. Use it to lead, not to chase."</p>
+        </header>
+
+        {activeTab === 'cockpit' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800">
+               <h3 className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Active Agents</h3>
+               <p className="text-6xl font-black mt-4 italic">355</p>
+            </div>
+            <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800">
+               <h3 className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Homestead Fund</h3>
+               <p className="text-6xl font-black mt-4 text-emerald-500 italic">$0</p>
+            </div>
+          </div>
+        )}
+
+        {/* HIDDEN MODAL */}
+        {showHidden && (
+          <div className="fixed inset-0 bg-slate-950/95 flex items-center justify-center z-[100] p-6">
+            <div className="max-w-xl w-full bg-slate-900 border-2 border-indigo-500 p-12 rounded-[3rem] text-center">
+              <h2 className="text-3xl font-black text-yellow-400 mb-4 italic uppercase">Unlock the Hidden Rhythm</h2>
+              <p className="text-slate-300 mb-8">"Are you interested in raising your income by 300% by tapping the universal timing?"</p>
+              <div className="space-y-4 text-left mb-8">
+                 <p className="text-xs text-indigo-300 font-bold uppercase underline">Initiation Fee: $44</p>
+                 <p className="text-sm text-slate-400 italic">• Personalized Life Path Lessons</p>
+                 <p className="text-sm text-slate-400 italic">• Launch Timing Synchronization</p>
+              </div>
+              <button className="w-full bg-indigo-600 py-4 rounded-2xl font-black uppercase tracking-tighter" onClick={() => setShowHidden(false)}>Accept Aligned Path</button>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}          ) : (
             <button className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-600 cursor-not-allowed"><Lock size={20} /><span>Locked Frequency</span></button>
           )}
 

@@ -9,10 +9,10 @@ export default function Home() {
   const router = useRouter();
 
   const handleEntry = () => {
-    const lowerEmail = email.toLowerCase().trim();
-    if (!lowerEmail) return;
-    window.localStorage.setItem('curispro_email', lowerEmail);
-    const eliteData = ELITE_AGENTS[lowerEmail];
+    const lower = email.toLowerCase().trim();
+    if (!lower) return;
+    window.localStorage.setItem('curispro_email', lower);
+    const eliteData = ELITE_AGENTS[lower];
     if (eliteData) { setElite(eliteData); } 
     else { router.push('/dashboard'); }
   };
@@ -22,9 +22,9 @@ export default function Home() {
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-6">
         <div className="max-w-md w-full bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl text-center border-t-indigo-500">
           <h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-8 italic">CurisPro</h1>
-          <h2 className="text-2xl font-bold text-yellow-400 mb-2 font-serif underline decoration-indigo-500/50">Welcome Home, {elite.name}</h2>
+          <h2 className="text-2xl font-bold text-yellow-400 mb-2 font-serif">Welcome Home, {elite.name}</h2>
           <p className="text-sm text-slate-300 mb-8 italic font-light leading-relaxed">"{elite.quote}"</p>
-          <button onClick={() => router.push('/dashboard')} className="w-full bg-indigo-600 py-4 rounded-xl font-black tracking-widest uppercase hover:bg-indigo-500 transition-all shadow-[0_0_20px_rgba(79,70,229,0.4)] animate-pulse">
+          <button onClick={() => router.push('/dashboard')} className="w-full bg-indigo-600 py-4 rounded-xl font-black tracking-widest uppercase hover:bg-indigo-500 transition-all shadow-[0_0_30px_rgba(79,70,229,0.5)] animate-pulse">
             {elite.freeDays === 1095 ? '3 Years' : '88 Days'} ACCESS GRANTED
           </button>
           <p className="mt-8 text-[10px] tracking-[0.5em] text-slate-600 uppercase font-black">CODE: 33 • 11 • 22 • 88</p>

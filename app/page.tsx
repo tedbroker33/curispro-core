@@ -15,10 +15,12 @@ export default function Home() {
     const eliteData = ELITE_AGENTS[lowerEmail];
     if (eliteData) {
       setElite(eliteData);
-    } else {
-      router.push('/dashboard');
-    }
-  };
+<h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-8 italic">CurisPro</h1>
+<div className="flex flex-col items-center justify-center space-y-2 mb-10">
+  <h2 className="text-xl font-bold text-slate-400 uppercase tracking-[0.3em]">Welcome Home</h2>
+  <h2 className="text-4xl font-black text-yellow-400 font-serif underline decoration-indigo-500/50 underline-offset-8 decoration-4">{elite.name}</h2>
+</div>
+<p className="text-sm text-slate-300 mb-8 italic font-light leading-relaxed">"{elite.quote}"</p>
 
   if (elite) {
     return (

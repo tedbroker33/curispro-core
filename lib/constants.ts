@@ -8,7 +8,8 @@ export const ELITE_AGENTS: Record<string, { name: string; freeDays: number; quot
   'twenecki@myhst.com': { name: 'Ted Wenecki', freeDays: 10000, quote: '“The Architect. The Master Teacher. The system is yours.”' }
 };
 
-export const FREQUENCY_QUOTES: Record<number, string[]> = {
+// These can be adjusted by Ted in the Owner Portal later
+export const DYNAMIC_QUOTES: Record<number, string[]> = {
   1: ["Initiate. The Pioneer doesn't ask for permission.", "Your frequency is the One. Lead the pack."],
   6: ["Harmony is your leverage. Align the team to align the bag.", "The 33/6 frequency heals through abundance."],
   33: ["Master Teacher: The code is in your hands.", "Your influence is mathematically undeniable."]

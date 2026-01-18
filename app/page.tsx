@@ -1,138 +1,89 @@
-   'use client'
+'use client'
 
-import { useState, useEffect } from 'react'
-import { STANDARD_PRICE, BETA_PRICE, BETA_LIST, ELITE_AGENTS } from '../lib/constants'
-
-type Stage = 'welcome' | 'reminder' | 'dashboard'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { BETA_LIST, ELITE_AGENTS } from '../lib/constants'
 
 export default function Home() {
   const [email, setEmail] = useState('')
-  const [stage, setStage] = useState<Stage>('welcome')
-  const [isBeta, setIsBeta] = useState(false)
-  const [elite, setElite] = useState<any>(null)
+  const [showReminder, setShowReminder] = useState(false)
+  const [welcomeTitle, setWelcomeTitle] = useState('Welcome Back')
+  const router = useRouter()
 
-  useEffect(() => {
+  const handleActivate = () => {
     const lower = email.toLowerCase().trim()
-    setIsBeta(BETA_LIST.includes(lower))
-    setElite(ELITE_AGENTS[lower as keyof typeof ELITE_AGENTS] ?? null)
-  }, [email])
+    if (!lower) return
 
-  const handleContinue = () => {
-    if (!email) return
-    setStage('reminder')
+    const isElite = !!ELITE_AGENTS[lower as keyof typeof ELITE_AGENTS]
+    const isBeta = BETA_LIST.includes(lower)
+
+    if (isElite) {
+      const elite = ELITE_AGENTS[lower as keyof typeof ELITE_AGENTS]
+      setWelcomeTitle(`Welcome Home, ${elite.name}`)
+    } else if (isBeta) {
+      setWelcomeTitle('You Have Been Chosen')
+    } else {
+      setWelcomeTitle('Standard Access')
+    }
+
+    setShowReminder(true)
   }
 
-  const handleEnterDashboard = () => {
-    setStage('dashboard')
+  const enterDashboard = () => {
+    setShowReminder(false)
+    router.push('/dashboard')
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-950 text-white p-6">
-      {/* WELCOME CARD */}
-      {stage === 'welcome' && (
-        <div className="max-w-md w-full bg-slate-900 rounded-3xl border border-slate-800 px-8 py-10 text-center shadow-2xl">
-          <h1 className="text-4xl font-bold mb-6 text-indigo-400">CurisPro</h1>
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-6">
+      <div className="max-w-md w-full bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl text-center">
+        <h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-8">
+          CurisPro
+        </h1>
 
-          {elite ? (
-            <>
-              <p className="text-lg font-semibold mb-2">Welcome Home, {elite.name}</p>
-              <p className="text-sm text-slate-400 mb-6">"{elite.quote}"</p>
-            </>
-          ) : (
-            <p className="text-sm text-slate-400 mb-6">
-              Enter your email to continue to your CurisPro workspace.
+        <input
+          type="email"
+          placeholder="Agent Email"
+          className="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 text-center text-lg mb-6"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <button
+          onClick={handleActivate}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-bold text-lg transition-transform hover:scale-105"
+        >
+          Continue
+        </button>
+
+        <p className="mt-6 text-[10px] tracking-[0.35em] text-slate-500 uppercase">
+          Code: 33 • 11 • 22 • 88
+        </p>
+      </div>
+
+      {/* Reminder Modal */}
+      {showReminder && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-3xl p-8 text-left shadow-[0_0_50px_rgba(79,70,229,0.6)]">
+            <h2 className="text-xl font-bold text-indigo-400 mb-3">{welcomeTitle}</h2>
+            <p className="text-slate-200 text-sm mb-4">
+              CurisPro Pro is a results‑first platform. No contracts. Cancel anytime.
+              By entering the dashboard, you confirm you’re here to grow your group benefits business.
             </p>
-          )}
-
-          <input
-            type="email"
-            placeholder="agent@yourdomain.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 text-center text-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-4"
-          />
-
-          <button
-            onClick={handleContinue}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-lg transition-all transform hover:scale-105 disabled:opacity-50"
-            disabled={!email}
-          >
-            Continue
-          </button>
-
-          <div className="text-[10px] mt-6 tracking-[0.5em] text-slate-600 uppercase">
-            Code: 33 • 11 • 22 • 88
-          </div>
-        </div>
-      )}
-
-      {/* SIMPLE TEST DASHBOARD */}
-      {stage === 'dashboard' && (
-        <div className="max-w-3xl w-full bg-slate-900 rounded-3xl border border-slate-800 px-8 py-10 shadow-2xl text-left">
-          <h1 className="text-3xl font-bold text-indigo-400 mb-4">CurisPro Dashboard (Test Mode)</h1>
-          <p className="text-slate-300 mb-6">
-            You are inside the app now. This is where we will plug in onboarding, templates,
-            lead gen, and the Financial Cockpit. For now, this is a safe place to click around
-            and confirm the flow works.
-          </p>
-
-          <ul className="space-y-3 text-sm text-slate-200">
-            <li>• Step 1 – Email Entry (no pricing)</li>
-            <li>• Step 2 – Reminder Popup (pricing + terms)</li>
-            <li>• Step 3 – Dashboard access (this screen)</li>
-          </ul>
-
-          <button
-            onClick={() => setStage('welcome')}
-            className="mt-8 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-lg text-sm"
-          >
-            Back to Welcome Screen
-          </button>
-        </div>
-      )}
-
-      {/* REMINDER POPUP BEFORE DASHBOARD */}
-      {stage === 'reminder' && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="max-w-md w-full bg-slate-900 rounded-2xl border border-slate-700 p-6 text-left shadow-2xl">
-            <h2 className="text-xl font-bold text-indigo-400 mb-3">Quick Reminder</h2>
-
-            {elite ? (
-              <p className="text-sm text-slate-300 mb-3">
-                You have a private arrangement: <span className="font-semibold">
-                {elite.trial === 1095 ? '3 years' : '88 days'}
-                </span>{' '}
-                of complimentary CurisPro Pro access. After that, standard CurisPro rates apply.
-              </p>
-            ) : isBeta ? (
-              <p className="text-sm text-slate-300 mb-3">
-                As part of the beta group, you receive{' '}
-                <span className="font-semibold">14 days complimentary access</span>. After that,
-                your special beta rate is <span className="font-semibold">${BETA_PRICE}/mo</span>.
-              </p>
-            ) : (
-              <p className="text-sm text-slate-300 mb-3">
-                CurisPro Pro is <span className="font-semibold">${STANDARD_PRICE}/mo</span>.
-                You can cancel anytime. By continuing, you agree to testing this platform with the
-                intention of scaling your group benefits business.
-              </p>
-            )}
-
-            <p className="text-xs text-slate-500 mb-5">
-              You can change or cancel your subscription in your account settings. This reminder
-              is shown once before your first time entering the dashboard.
+            <p className="text-slate-400 text-xs mb-6">
+              Hit <span className="font-semibold">$5,000</span> in paid commissions in your first month
+              and we may waive Month 2. Hit <span className="font-semibold">$10,000</span>, and Month 3
+              is on us. Coffee is for closers.
             </p>
-
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => setStage('welcome')}
-                className="px-4 py-2 text-sm rounded-lg bg-slate-800 hover:bg-slate-700"
+                onClick={() => setShowReminder(false)}
+                className="px-4 py-2 rounded-lg text-xs bg-slate-800 hover:bg-slate-700"
               >
                 Go Back
               </button>
               <button
-                onClick={handleEnterDashboard}
-                className="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 font-semibold"
+                onClick={enterDashboard}
+                className="px-4 py-2 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700"
               >
                 Enter Dashboard
               </button>

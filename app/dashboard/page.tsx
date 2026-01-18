@@ -1,40 +1,122 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { LayoutDashboard, Users, Zap, GraduationCap, BarChart3, ShieldCheck } from 'lucide-react'
-import { OWNER_EMAIL } from '../../lib/constants'
-import { getFrequencyNumber, getDailyQuote } from '../../lib/frequency'
+import { useState, useEffect } from 'react';
+import { LayoutDashboard, Users, Zap, GraduationCap, ShieldCheck, Lock, HelpCircle } from 'lucide-react';
+import { OWNER_EMAIL } from '../../lib/constants';
 
 export default function Dashboard() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState('overview')
-  const [email, setEmail] = useState<string | null>(null)
-  const [birthday, setBirthday] = useState('')
-  const [quote, setQuote] = useState('Today is a good day to move in rhythm with your best opportunities.')
-  const [showBirthdayModal, setShowBirthdayModal] = useState(false)
-  const [tapCount, setTapCount] = useState(0)
-  const [showHiddenPanel, setShowHiddenPanel] = useState(false)
+  const [activeTab, setActiveTab] = useState('cockpit');
+  const [tapCount, setTapCount] = useState(0);
+  const [showHidden, setShowHidden] = useState(false);
+  const [email, setEmail] = useState('');
+  const [birthday, setBirthday] = useState('');
+  const [wizardStep, setWizardStep] = useState(1);
 
   useEffect(() => {
-    // in a real app, email comes from auth; for now, read from localStorage if you wish
-    const storedEmail = window.localStorage.getItem('curispro_email')
-    if (storedEmail) setEmail(storedEmail)
+    setEmail(localStorage.getItem('curispro_email') || '');
+    if (tapCount >= 3) { setShowHidden(true); setTapCount(0); }
+  }, [tapCount]);
 
-    const storedBirthday = window.localStorage.getItem('curispro_birthday')
-    if (!storedBirthday) {
-      setShowBirthdayModal(true)
-    } else {
-      setBirthday(storedBirthday)
-      const freq = getFrequencyNumber(storedBirthday)
-      setQuote(getDailyQuote(freq, new Date()))
-    }
-  }, [])
+  const isTed = email === OWNER_EMAIL;
 
-  useEffect(() => {
-    if (tapCount >= 3) {
-      setShowHiddenPanel(true)
-      setTapCount(0)
-    }
+  return (
+    <div className="flex min-h-screen bg-slate-950 text-white overflow-hidden">
+      {/* SIDEBAR */}
+      <aside className="w-72 bg-slate-900 border-r border-slate-800 p-6 flex flex-col space-y-8 shadow-2xl">
+        <div className="text-3xl font-black text-indigo-500 italic tracking-tighter">CURISPRO</div>
+        <nav className="flex-1 space-y-3">
+          <button onClick={() => setActiveTab('cockpit')} className={`group flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'cockpit' ? 'bg-indigo-600' : 'text-slate-400'}`}>
+            <LayoutDashboard /> <span className="font-bold">Financial Cockpit</span>
+            {wizardStep === 1 && <div className="ml-auto animate-ping w-2 h-2 bg-yellow-400 rounded-full"></div>}
+          </button>
+          
+          {isTed ? (
+            <button onClick={() => setActiveTab('scanner')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'scanner' ? 'bg-indigo-600' : 'text-slate-400'}`}>
+              <Users /> <span className="font-bold">Frequency Scanner</span>
+            </button>
+          ) : (
+            <div className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-700 cursor-not-allowed">
+              <Lock size={18}/> <span className="font-bold italic text-xs uppercase tracking-tighter">Frequency Locked</span>
+            </div>
+          )}
+          
+          <button onClick={() => setActiveTab('academy')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'academy' ? 'bg-indigo-600' : 'text-slate-400'}`}>
+            <GraduationCap /> <span className="font-bold">Training Vault</span>
+          </button>
+        </nav>
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center space-x-3 text-emerald-400">
+           <ShieldCheck size={20} /> <span className="text-[10px] font-black uppercase tracking-widest leading-none text-emerald-500">Vault Status:<br/>Sovereign</span>
+        </div>
+      </aside>
+
+      {/* MAIN STAGE */}
+      <main className="flex-1 p-12 relative overflow-y-auto">
+        {/* THE ORIENTATION WIZARD (Student Grade) */}
+        <div className="fixed bottom-8 right-8 max-w-sm bg-slate-900 border border-indigo-500/50 p-6 rounded-3xl shadow-2xl z-50">
+          <div className="flex justify-between items-center mb-4">
+             <p className="text-yellow-400 font-bold text-xs uppercase tracking-widest">Master Wizard: Step {wizardStep}/3</p>
+             <button onClick={() => setWizardStep(prev => prev + 1)} className="text-[10px] bg-slate-800 px-3 py-1 rounded-full uppercase">Next</button>
+          </div>
+          <p className="text-sm text-slate-200 leading-relaxed italic">
+            {wizardStep === 1 && "First, verify your Financial Cockpit. This is where you track your legacy numbers."}
+            {wizardStep === 2 && "Update your birthday in the Hidden Panel. This aligns your daily dashboard quotes with your frequency."}
+            {wizardStep === 3 && "Tap the code at the top right 3 times. This unlocks the hidden rhythm training."}
+          </p>
+        </div>
+
+        {/* EASTER EGG TRIGGER */}
+        <div className="absolute top-4 right-8 text-[10px] text-slate-600 tracking-[0.4em] cursor-pointer hover:text-indigo-400 select-none" onClick={() => setTapCount(c => c+1)}>CODE: 33 • 11 • 22 • 88</div>
+
+        <header className="mb-12 flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-bold italic tracking-tight uppercase">The Armory</h1>
+            <p className="text-slate-500 mt-2 font-medium italic">Today’s Rhythm: "Stop looking at the mountain. Walk the path one aligned step at a time."</p>
+          </div>
+          <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+            <label className="text-[10px] text-slate-500 block uppercase font-black mb-1">Set Birthday</label>
+            <input type="text" placeholder="MM/DD/YYYY" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="bg-transparent border-b border-slate-700 text-sm outline-none w-24 text-indigo-400 font-bold" />
+          </div>
+        </header>
+
+        {activeTab === 'cockpit' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity"><LayoutDashboard size={80} /></div>
+               <h3 className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Active Writing Agents</h3>
+               <p className="text-7xl font-black mt-4 italic tracking-tighter">355</p>
+               <p className="text-emerald-400 text-xs font-bold mt-4">↑ 24% ACTIVATION RATE</p>
+            </div>
+            <div className="bg-slate-900 p-10 rounded-[2.5rem] border border-slate-800 shadow-2xl">
+               <h3 className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-emerald-500">Homestead Reserve</h3>
+               <p className="text-7xl font-black mt-4 italic tracking-tighter">$0.00</p>
+               <div className="mt-6 w-full bg-slate-800 h-2 rounded-full"><div className="bg-indigo-500 h-full w-[2%] shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div></div>
+            </div>
+          </div>
+        )}
+
+        {/* HIDDEN MODAL FOR NUMEROLOGISTS */}
+        {showHidden && (
+          <div className="fixed inset-0 bg-slate-950/98 flex items-center justify-center z-[100] p-6">
+            <div className="max-w-2xl w-full bg-slate-900 border-2 border-indigo-500 p-12 rounded-[3rem] text-center shadow-[0_0_100px_rgba(79,70,229,0.3)]">
+              <h2 className="text-4xl font-black text-yellow-400 mb-6 italic uppercase tracking-tighter underline decoration-indigo-500">The Hidden Panel</h2>
+              <p className="text-slate-200 text-xl mb-10 font-serif italic">"Would you like to raise your income by 300% by tapping the universal rhythm?"</p>
+              
+              <div className="grid grid-cols-1 gap-4 text-left mb-10">
+                 <div className="bg-slate-800/50 p-6 rounded-3xl border border-slate-700">
+                    <p className="text-xs text-indigo-400 font-black uppercase mb-1">Access Level: Master ($44/mo)</p>
+                    <p className="text-sm text-slate-300">• Personalized Life Path Expansion Lessons</p>
+                    <p className="text-sm text-slate-300">• Launch Timing Synchronization Logic</p>
+                    <p className="text-sm text-slate-300">• Gematria-Aligned Outreach Scripts</p>
+                 </div>
+              </div>
+              
+              <button className="w-full bg-indigo-600 py-5 rounded-3xl font-black uppercase tracking-widest text-lg hover:bg-indigo-500 transition-all" onClick={() => setShowHidden(false)}>Accept Aligned Path</button>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}    }
   }, [tapCount])
 
   const saveBirthday = () => {

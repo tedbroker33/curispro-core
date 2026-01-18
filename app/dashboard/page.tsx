@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, Zap, GraduationCap, ShieldCheck, Lock, UserCircle, Target, TrendingUp, Home, Map } from 'lucide-react';
+import { LayoutDashboard, Users, Zap, GraduationCap, ShieldCheck, Lock, UserCircle, Target, TrendingUp, DollarSign, Briefcase, FileText, Settings, Play, ArrowUpRight } from 'lucide-react';
 import { OWNER_EMAIL } from '../../lib/constants';
 
 export default function Dashboard() {
@@ -11,7 +11,9 @@ export default function Dashboard() {
   const [qStep, setQStep] = useState(0);
   const [email, setEmail] = useState('');
   const [birthday, setBirthday] = useState('');
+  const [showWizard, setShowWizard] = useState(true);
   const [wizardStep, setWizardStep] = useState(1);
+  const router = useRouter();
 
   useEffect(() => {
     setEmail(localStorage.getItem('curispro_email') || '');
@@ -25,43 +27,56 @@ export default function Dashboard() {
       {/* SIDEBAR */}
       <aside className="w-72 bg-slate-900 border-r border-slate-800 p-6 flex flex-col space-y-8 shadow-2xl z-20">
         <div className="text-3xl font-black text-indigo-500 italic tracking-tighter">CURISPRO</div>
-        <nav className="flex-1 space-y-3">
-          <button onClick={() => setActiveTab('cockpit')} className={`group flex items-center space-x-4 w-full p-4 rounded-2xl transition-all ${activeTab === 'cockpit' ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800'}`}>
-            <LayoutDashboard size={20} /> <span className="font-bold text-sm uppercase tracking-wider">{isTed ? 'The Empire' : 'Growth Alignment'}</span>
-            {wizardStep === 1 && <div className="ml-auto animate-ping w-2 h-2 bg-yellow-400 rounded-full"></div>}
-          </button>
+        <nav className="flex-1 space-y-2">
+          {[
+            { id: 'cockpit', label: isTed ? 'Empire Cockpit' : 'Financial Cockpit', icon: LayoutDashboard },
+            { id: 'crm', label: 'CRM / Leads', icon: Briefcase },
+            { id: 'armory', label: 'Armory (Templates)', icon: FileText },
+            { id: 'academy', label: 'Training Academy', icon: Play },
+            { id: 'brand', label: 'Brand Accelerator', icon: Zap },
+            { id: 'payments', label: 'Payments (Stripe)', icon: DollarSign },
+            { id: 'settings', label: 'Identity Settings', icon: Settings },
+          ].map((item) => (
+            <button key={item.id} id={`btn-${item.id}`} onClick={() => setActiveTab(item.id)} className={`relative flex items-center space-x-4 w-full p-4 rounded-2xl transition-all ${activeTab === item.id ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800'}`}>
+              <item.icon size={20} /> <span className="font-bold text-xs uppercase tracking-wider">{item.label}</span>
+              {!isTed && item.id === 'scanner' && <Lock className="ml-auto opacity-30" size={14} />}
+            </button>
+          ))}
           
           {isTed && (
-            <button onClick={() => setActiveTab('scanner')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl transition-all ${activeTab === 'scanner' ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800'}`}>
-              <Target size={20} /> <span className="font-bold text-sm uppercase tracking-wider">GG-Scanner (Friday Batch)</span>
+            <button id="btn-scanner" onClick={() => setActiveTab('scanner')} className={`mt-8 flex items-center space-x-4 w-full p-4 rounded-2xl bg-indigo-900/20 text-indigo-400 border border-indigo-500/30 transition-all ${activeTab === 'scanner' ? 'bg-indigo-600 text-white' : ''}`}>
+              <Target size={20} /> <span className="font-bold text-xs uppercase tracking-widest">GG-Scanner</span>
             </button>
           )}
-          
-          <button onClick={() => setActiveTab('academy')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl transition-all ${activeTab === 'academy' ? 'bg-indigo-600' : 'text-slate-400'}`}>
-            <GraduationCap size={20} /> <span className="font-bold text-sm uppercase tracking-wider">Training Vault</span>
-          </button>
         </nav>
 
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center space-x-3 text-emerald-400">
-           <ShieldCheck size={20} /> <span className="text-[10px] font-black uppercase tracking-widest leading-tight text-emerald-500">Identity:<br/>Sovereign</span>
+           <ShieldCheck size={20} /> <span className="text-[10px] font-black uppercase tracking-widest leading-tight text-emerald-500">Identity Status:<br/>Sovereign</span>
         </div>
       </aside>
 
       {/* MAIN STAGE */}
       <main className="flex-1 p-12 relative overflow-y-auto">
         
-        {/* THE ORIENTATION WIZARD */}
-        <div className="fixed bottom-8 right-8 max-w-sm bg-slate-900 border-2 border-indigo-500/50 p-6 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,1)] z-50 animate-in slide-in-from-bottom-4">
-          <div className="flex justify-between items-center mb-4">
-             <p className="text-yellow-400 font-black text-[10px] uppercase tracking-[0.25em]">Initiation: Phase {wizardStep}</p>
-             <button onClick={() => setWizardStep(prev => prev < 3 ? prev + 1 : 1)} className="text-[10px] bg-indigo-600 px-4 py-1 rounded-full font-black uppercase">Next</button>
+        {/* STARTUP WIZARD OVERLAY */}
+        {showWizard && (
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+            <div className="max-w-md w-full bg-slate-900 border-2 border-indigo-500 p-10 rounded-[3rem] text-center shadow-[0_0_100px_rgba(79,70,229,0.3)] relative">
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-indigo-500 animate-bounce">
+                <ArrowUpRight size={48} className={wizardStep === 1 ? "rotate-[225deg]" : "hidden"} />
+              </div>
+              <h2 className="text-2xl font-black text-yellow-400 mb-4 uppercase tracking-tighter">Initiation: Phase {wizardStep}</h2>
+              <p className="text-slate-200 text-sm mb-8 italic">
+                {wizardStep === 1 && "Priority 1: Your frequency must be identified. You cannot access the armory without an active Birthday calibration."}
+                {wizardStep === 2 && "Priority 2: Establish your baseline. Open the Cockpit and set your Income goal to align the rhythm."}
+                {wizardStep === 3 && "Priority 3: The system is a sequence. Always check the Training Vault before executing a scan."}
+              </p>
+              <button onClick={() => wizardStep < 3 ? setWizardStep(wizardStep+1) : setShowWizard(false)} className="w-full bg-indigo-600 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-indigo-500">
+                {wizardStep === 3 ? "Enter the Armory" : "Understood. Next."}
+              </button>
+            </div>
           </div>
-          <p className="text-sm text-slate-200 leading-relaxed font-medium italic">
-            {wizardStep === 1 && "Priority 1: Enter your Birth Date in the top right. This calibrates your Daily Rhythm."}
-            {wizardStep === 2 && "Priority 2: Set your Income Goals. The dashboard will track your Client Pulse automatically."}
-            {wizardStep === 3 && "Hidden: If the energy feels off, tap the footer code 3 times to enter the Master Panel."}
-          </p>
-        </div>
+        )}
 
         {/* TOP CONTROLS */}
         <div className="absolute top-4 right-8 flex items-center space-x-8">
@@ -75,11 +90,11 @@ export default function Dashboard() {
         <header className="mb-20">
           <h1 className="text-5xl font-black italic tracking-tighter uppercase text-slate-100 mb-2">The Armory</h1>
           <div className="h-1.5 w-32 bg-indigo-600"></div>
-          <p className="text-slate-500 mt-6 font-serif italic text-xl max-w-2xl italic">"Wealth is attracted through perfect alignment with the clock."</p>
+          <p className="text-slate-500 mt-6 font-serif italic text-xl max-w-2xl italic">"Today's Rhythm: Wealth is attracted through perfect alignment with the clock."</p>
         </header>
 
         {activeTab === 'cockpit' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {isTed ? (
               <>
                 <div className="bg-slate-900 p-12 rounded-[3.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group hover:border-indigo-500/30 transition-all">
@@ -88,43 +103,35 @@ export default function Dashboard() {
                    <div className="mt-10 w-full bg-slate-800 h-4 rounded-full overflow-hidden p-1 shadow-inner">
                       <div className="bg-emerald-500 h-full w-[24%] rounded-full shadow-[0_0_20px_rgba(16,185,129,0.8)] animate-pulse"></div>
                    </div>
-                   <p className="text-[10px] text-slate-600 font-bold mt-4 tracking-[0.2em] uppercase italic italic">Grant Activation: $5,000 Milestone</p>
+                   <p className="text-[10px] text-slate-600 font-bold mt-4 tracking-[0.2em] uppercase italic italic underline decoration-indigo-500">Grant Activation: $5,000 Milestone</p>
                 </div>
                 <div className="bg-slate-900 p-12 rounded-[3.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group hover:border-indigo-500/30 transition-all">
-                  <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] mb-6">Acreage Radar</h3>
-                  <div className="space-y-4">
-                     <div className="flex justify-between items-center bg-slate-800 p-4 rounded-2xl border border-slate-700">
-                        <div><p className="font-bold text-sm">12 Acres - GA</p><p className="text-[10px] text-slate-400">Aligned with Float</p></div>
-                        <Map size={20} className="text-indigo-400" />
-                     </div>
-                     <div className="flex justify-between items-center bg-slate-800 p-4 rounded-2xl border border-slate-700">
-                        <div><p className="font-bold text-sm">25 Acres - TN</p><p className="text-[10px] text-slate-400 italic">Target: $25k MRR</p></div>
-                        <Lock size={20} className="text-slate-600" />
-                     </div>
-                  </div>
+                  <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] mb-6 italic">The Fleet (Total Agents)</h3>
+                  <p className="text-9xl font-black italic tracking-tighter text-slate-100 leading-none">355</p>
+                  <p className="text-emerald-400 text-xs font-black mt-10 tracking-widest uppercase">↑ 24% Activation Aligned</p>
                 </div>
               </>
             ) : (
               <>
                 <div className="bg-slate-900 p-12 rounded-[3.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group hover:border-indigo-500/30 transition-all">
-                   <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] mb-6">Personal Revenue</h3>
+                   <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] mb-6 italic">Personal Revenue</h3>
                    <p className="text-9xl font-black italic tracking-tighter text-slate-100 leading-none">$0</p>
-                   <p className="text-indigo-400 text-xs font-black mt-10 tracking-widest uppercase">Target: $5,000 Month 1 Waiver</p>
+                   <p className="text-indigo-400 text-xs font-black mt-10 tracking-widest uppercase">Target: $5,000 Month 1 Bonus</p>
                 </div>
                 <div className="bg-slate-900 p-12 rounded-[3.5rem] border border-slate-800 shadow-2xl relative overflow-hidden group hover:border-indigo-500/30 transition-all">
-                   <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] mb-6">Client Pulse</h3>
+                   <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] mb-6 italic">Client Pulse</h3>
                    <p className="text-9xl font-black italic tracking-tighter text-slate-100 leading-none">0</p>
-                   <p className="text-slate-600 text-xs font-black mt-10 tracking-widest uppercase">Active Policies</p>
+                   <p className="text-slate-600 text-xs font-black mt-10 tracking-widest uppercase italic">Active Policies Found</p>
                 </div>
               </>
             )}
           </div>
         )}
 
-        {/* THE HIDDEN PANEL (For those who tap the code) */}
+        {/* HIDDEN MASTER PANEL */}
         {showHidden && (
-          <div className="fixed inset-0 bg-slate-950/98 flex items-center justify-center z-[100] p-6 animate-in zoom-in-95 duration-300">
-            <div className="max-w-2xl w-full bg-slate-900 border-2 border-indigo-500 p-16 rounded-[5rem] text-center shadow-[0_0_150px_rgba(79,70,229,0.3)]">
+          <div className="fixed inset-0 bg-slate-950/98 flex items-center justify-center z-[110] p-6 animate-in zoom-in-95 duration-300">
+            <div className="max-w-3xl w-full bg-slate-900 border-2 border-indigo-500 p-16 rounded-[5rem] text-center shadow-[0_0_150px_rgba(79,70,229,0.3)]">
               {qStep < 3 ? (
                 <>
                   <h2 className="text-2xl font-black text-yellow-400 mb-8 italic uppercase tracking-[0.3em]">Frequency Audit</h2>
@@ -138,8 +145,8 @@ export default function Dashboard() {
               ) : (
                 <div className="animate-in fade-in duration-1000">
                   <h2 className="text-4xl font-black text-yellow-400 mb-4 italic uppercase tracking-tighter">Congratulations. You’re Awake.</h2>
-                  <p className="text-slate-300 mb-10 leading-relaxed italic text-sm">"We don’t sell hope. We sell alignment. Acquire the skill. Billionaires use this. I use this. Stop playing on Hard Mode."</p>
-                  <div className="bg-slate-800/40 p-8 rounded-[2.5rem] border border-slate-700 mb-10 text-left">
+                  <p className="text-slate-300 mb-10 leading-relaxed italic text-sm">"We don’t sell hope. We sell alignment. Billionaires use this. I use this. Stop playing on Hard Mode."</p>
+                  <div className="bg-slate-800/40 p-8 rounded-[2.5rem] border border-slate-700 mb-10 text-left hover:border-indigo-500 transition-all">
                      <p className="text-indigo-400 font-black uppercase text-xs mb-3 tracking-[0.25em]">Unlock: Master Expansion ($33/mo)</p>
                      <ul className="text-sm text-slate-300 space-y-3 font-medium">
                         <li className="flex items-center space-x-3"><Zap size={14} className="text-yellow-400"/> <span>Personalized Life Path Expansion</span></li>

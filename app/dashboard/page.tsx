@@ -1,40 +1,220 @@
 'use client'
-import { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Zap, GraduationCap, ShieldCheck, Lock } from 'lucide-react';
-import { OWNER_EMAIL } from '../../lib/constants';
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { LayoutDashboard, Users, Zap, GraduationCap, BarChart3, ShieldCheck } from 'lucide-react'
+import { OWNER_EMAIL } from '../../lib/constants'
+import { getFrequencyNumber, getDailyQuote } from '../../lib/frequency'
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('cockpit');
-  const [tapCount, setTapCount] = useState(0);
-  const [showHidden, setShowHidden] = useState(false);
-  const [email, setEmail] = useState('');
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState('overview')
+  const [email, setEmail] = useState<string | null>(null)
+  const [birthday, setBirthday] = useState('')
+  const [quote, setQuote] = useState('Today is a good day to move in rhythm with your best opportunities.')
+  const [showBirthdayModal, setShowBirthdayModal] = useState(false)
+  const [tapCount, setTapCount] = useState(0)
+  const [showHiddenPanel, setShowHiddenPanel] = useState(false)
 
   useEffect(() => {
-    setEmail(localStorage.getItem('curispro_email') || '');
-    if (tapCount >= 3) { setShowHidden(true); setTapCount(0); }
-  }, [tapCount]);
+    // in a real app, email comes from auth; for now, read from localStorage if you wish
+    const storedEmail = window.localStorage.getItem('curispro_email')
+    if (storedEmail) setEmail(storedEmail)
 
-  const isTed = email === OWNER_EMAIL;
+    const storedBirthday = window.localStorage.getItem('curispro_birthday')
+    if (!storedBirthday) {
+      setShowBirthdayModal(true)
+    } else {
+      setBirthday(storedBirthday)
+      const freq = getFrequencyNumber(storedBirthday)
+      setQuote(getDailyQuote(freq, new Date()))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (tapCount >= 3) {
+      setShowHiddenPanel(true)
+      setTapCount(0)
+    }
+  }, [tapCount])
+
+  const saveBirthday = () => {
+    if (!birthday) return
+    window.localStorage.setItem('curispro_birthday', birthday)
+    const freq = getFrequencyNumber(birthday)
+    setQuote(getDailyQuote(freq, new Date()))
+    setShowBirthdayModal(false)
+  }
+
+  const isOwner = email === OWNER_EMAIL
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-white overflow-hidden">
+    <div className="flex min-h-screen bg-slate-950 text-white">
       {/* SIDEBAR */}
-      <aside className="w-72 bg-slate-900 border-r border-slate-800 p-6 flex flex-col space-y-8 shadow-2xl">
-        <div className="text-3xl font-black text-indigo-500 italic tracking-tighter">CURISPRO</div>
-        <nav className="flex-1 space-y-3">
-          <button onClick={() => setActiveTab('cockpit')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'cockpit' ? 'bg-indigo-600' : 'text-slate-400'}`}>
-            <LayoutDashboard /> <span className="font-bold">Financial Cockpit</span>
+      <aside className="w-72 bg-slate-900 border-r border-slate-800 p-6 flex flex-col space-y-8">
+        <div className="text-2xl font-black text-indigo-500 tracking-tighter">CURISPRO</div>
+        <nav className="flex-1 space-y-2">
+          <button className={`flex items-center space-x-3 w-full p-3 rounded-xl ${activeTab === 'overview' ? 'bg-indigo-600' : 'hover:bg-slate-800'}`} onClick={() => setActiveTab('overview')}>
+            <LayoutDashboard size={20} />
+            <span className="text-sm font-semibold">Financial Cockpit</span>
           </button>
-          
-          {isTed ? (
-            <button onClick={() => setActiveTab('scanner')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'scanner' ? 'bg-indigo-600' : 'text-slate-400'}`}>
-              <Users /> <span className="font-bold">Frequency Scanner</span>
+          {isOwner && (
+            <button className={`flex items-center space-x-3 w-full p-3 rounded-xl ${activeTab === 'scraper' ? 'bg-indigo-600' : 'hover:bg-slate-800'}`} onClick={() => setActiveTab('scraper')}>
+              <Users size={20} />
+              <span className="text-sm font-semibold">Frequency Scanner</span>
             </button>
-          ) : (
-            <div className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-700 cursor-not-allowed">
-              <Lock size={18}/> <span className="font-bold italic">Frequency Locked</span>
-            </div>
           )}
+          <button className={`flex items-center space-x-3 w-full p-3 rounded-xl ${activeTab === 'academy' ? 'bg-indigo-600' : 'hover:bg-slate-800'}`} onClick={() => setActiveTab('academy')}>
+            <GraduationCap size={20} />
+            <span className="text-sm font-semibold">Training Vault</span>
+          </button>
+        </nav>
+        <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+          <p className="text-[10px] uppercase text-slate-500 tracking-widest mb-1">Security</p>
+          <div className="flex items-center space-x-2 text-emerald-400 text-xs">
+            <ShieldCheck size={14} />
+            <span>Vault Encrypted</span>
+          </div>
+        </div>
+        <button onClick={() => router.push('/')} className="text-xs text-slate-500 hover:text-slate-300">
+          Logout
+        </button>
+      </aside>
+
+      {/* MAIN */}
+      <main className="flex-1 p-10 relative">
+        {/* Wizard helper */}
+        <div className="fixed bottom-4 right-4 bg-slate-900 border border-slate-800 p-4 rounded-xl text-xs text-slate-300 max-w-xs shadow-xl">
+          <p className="font-semibold mb-1">Orientation</p>
+          <p>1. Start in Financial Cockpit to see your numbers.</p>
+          <p>2. Add your birthday when prompted to tune your daily alignment.</p>
+          <p>3. Tap the code (top right) if you ever feel the rhythm is off.</p>
+        </div>
+
+        {/* Hidden code tap trigger */}
+        <div
+          className="absolute top-4 right-4 text-[10px] tracking-[0.35em] text-slate-500 uppercase cursor-pointer"
+          onClick={() => setTapCount((c) => c + 1)}
+        >
+          CODE: 33 • 11 • 22 • 88
+        </div>
+
+        {/* Top header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Welcome, Master Teacher</h1>
+          <p className="text-slate-400 text-sm">Today’s Alignment: {quote}</p>
+        </header>
+
+        {/* Tabs */}
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+              <p className="text-xs uppercase text-slate-500 mb-1">Active Agents</p>
+              <p className="text-4xl font-bold">355</p>
+            </div>
+            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+              <p className="text-xs uppercase text-slate-500 mb-1">Homestead Fund</p>
+              <p className="text-4xl font-bold text-emerald-400">$0.00</p>
+            </div>
+            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+              <p className="text-xs uppercase text-slate-500 mb-1">Next Rhythm Shift</p>
+              <p className="text-3xl font-bold">Feb 9</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'scraper' && isOwner && (
+          <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800">
+            <h2 className="text-xl font-bold mb-4">Frequency Scanner (Private)</h2>
+            <p className="text-sm text-slate-300 mb-4">
+              This panel is only visible to you. It surfaces brokers who already move in your timing and rhythm.
+            </p>
+            <p className="text-xs text-slate-500 mb-2">
+              (Implementation note: here you’d integrate PhantomBuster/Apify to pull LinkedIn profiles, then filter by birthday/class year.)
+            </p>
+          </div>
+        )}
+
+        {activeTab === 'academy' && (
+          <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800">
+            <h2 className="text-xl font-bold mb-4">Training Vault</h2>
+            <p className="text-sm text-slate-300 mb-4">
+              Lessons on scaling your book, rhythm‑based outreach, and aligning your daily habits with your long‑term numbers.
+            </p>
+            <ul className="text-sm text-slate-300 space-y-2">
+              <li>• Video 1 – How to turn 10 warm conversations into $5,000 in 30 days.</li>
+              <li>• Video 2 – Rhythm of Follow‑Up: the 1-3-7-21 method.</li>
+              <li>• Video 3 – Building a personal brand that makes inbound leads inevitable.</li>
+            </ul>
+          </div>
+        )}
+
+        {/* Birthday Modal */}
+        {showBirthdayModal && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 max-w-sm w-full">
+              <h3 className="text-lg font-semibold mb-3">Tune Your Frequency</h3>
+              <p className="text-xs text-slate-300 mb-4">
+                Add your birthday so we can align your dashboard messages with your natural timing.
+              </p>
+              <input
+                type="date"
+                value={birthday}
+                onChange={(e) => setBirthday(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm mb-4"
+              />
+              <button
+                onClick={saveBirthday}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold py-2 rounded-lg"
+              >
+                Save & Align
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Hidden Panel for Numerologists */}
+        {showHiddenPanel && (
+          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-900 p-8 rounded-3xl border border-indigo-500 max-w-lg w-full">
+              <h2 className="text-xl font-bold text-yellow-400 mb-2">Hidden Panel</h2>
+              <p className="text-xs text-slate-300 mb-4">
+                This space is for those who know the rhythm behind the numbers.
+              </p>
+              <p className="text-sm text-slate-200 mb-4">
+                Are you interested in raising your income by <span className="font-bold">300%</span> by 
+                aligning your outreach with your personal frequency?
+              </p>
+              <p className="text-xs text-slate-400 mb-4">
+                (This is where you can introduce paid lessons: life path sessions, launch timing, rhythm of calls, etc.)
+              </p>
+              <button
+                onClick={() => setShowHiddenPanel(false)}
+                className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold py-2 rounded-lg"
+              >
+                Close Panel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Trigger Hidden Panel */}
+        {tapCount >= 2 && (
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-[10px] text-slate-300">
+            One more tap on the code to unlock a deeper layer.
+          </div>
+        )}
+
+        {showHiddenPanel === false && (
+          <div
+            className="sr-only"
+            onClick={() => setShowHiddenPanel(true)}
+          />
+        )}
+
+      </main>
+    </div>
+  )
+}          )}
           
           <button onClick={() => setActiveTab('academy')} className={`flex items-center space-x-4 w-full p-4 rounded-2xl ${activeTab === 'academy' ? 'bg-indigo-600' : 'text-slate-400'}`}>
             <GraduationCap /> <span className="font-bold">Training Vault</span>

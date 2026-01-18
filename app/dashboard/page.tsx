@@ -1,40 +1,111 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Zap, GraduationCap, BarChart3, Settings, Play, ShieldCheck, Search, Download } from 'lucide-react';
+import { LayoutDashboard, Users, Zap, GraduationCap, BarChart3, Settings, HelpCircle, Lock } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 export default function Dashboard() {
+  const searchParams = useSearchParams();
+  const userEmail = searchParams.get('email')?.toLowerCase() || '';
+  const isAdmin = userEmail === 'twenecki@myhst.com';
+  
+  const [step, setStep] = useState(0);
   const [activeTab, setActiveTab] = useState('overview');
-  const [scraperResults, setScraperResults] = useState(false);
+  const [showHidden, setShowHidden] = useState(false);
+
+  const wizardSteps = [
+    { target: 'nav', text: "Sequence 1: This is your Aligned Menu. Navigation flows in order of Priority." },
+    { target: 'overview', text: "Sequence 2: The Cockpit. Monitor your Rhythm and Frequency here." },
+    { target: 'hidden', text: "The Alpha Hook: Only those who seek the Code can enter the Hidden Panel." }
+  ];
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-white font-sans overflow-hidden">
+    <div className="flex min-h-screen bg-[#0a0f1e] text-white font-sans">
       {/* SIDEBAR */}
-      <aside className="w-72 bg-slate-900 border-r border-slate-800 p-6 flex flex-col space-y-8 shadow-2xl">
-        <div className="text-3xl font-black text-indigo-500 tracking-tighter italic">CURISPRO</div>
-        <nav className="flex-1 space-y-2">
-          {[
-            { id: 'overview', label: 'Financial Cockpit', icon: LayoutDashboard },
-            { id: 'scraper', label: 'GG33 Scraper', icon: Users },
-            { id: 'compare', label: 'Market Compare', icon: Zap },
-            { id: 'academy', label: 'Training Academy', icon: GraduationCap },
-            { id: 'commissions', label: 'Commissions', icon: BarChart3 },
-          ].map((item) => (
-            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center space-x-4 w-full p-4 rounded-2xl transition-all duration-300 ${activeTab === item.id ? 'bg-indigo-600 shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-              <item.icon size={22} />
-              <span className="font-bold">{item.label}</span>
-            </button>
-          ))}
+      <aside className="w-72 bg-[#111827] border-r border-slate-800 p-8 flex flex-col space-y-10">
+        <div className="text-3xl font-black text-[#4f46e5] italic">CURISPRO</div>
+        <nav className="flex-1 space-y-2" id="nav-tour">
+          <button onClick={() => setActiveTab('overview')} className="flex items-center space-x-4 w-full p-4 rounded-2xl bg-[#4f46e5]">
+            <LayoutDashboard size={20} /><span>Frequency Overview</span>
+          </button>
+          
+          {/* RESTRICTED TABS */}
+          {isAdmin ? (
+            <>
+              <button onClick={() => setActiveTab('scraper')} className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-400 hover:bg-slate-800"><Users size={20} /><span>GG33 Filter</span></button>
+              <button onClick={() => setActiveTab('cockpit')} className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-400 hover:bg-slate-800"><BarChart3 size={20} /><span>Financial Cockpit</span></button>
+            </>
+          ) : (
+            <button className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-600 cursor-not-allowed"><Lock size={20} /><span>Locked Frequency</span></button>
+          )}
+
+          <button onClick={() => setActiveTab('compare')} className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-400 hover:bg-slate-800"><Zap size={20} /><span>Market Compare</span></button>
+          <button onClick={() => setActiveTab('academy')} className="flex items-center space-x-4 w-full p-4 rounded-2xl text-slate-400 hover:bg-slate-800"><GraduationCap size={20} /><span>The Academy</span></button>
         </nav>
-        <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700">
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-2">Sovereign Security</p>
-          <div className="flex items-center space-x-2 text-emerald-400 text-xs font-mono">
-            <ShieldCheck size={14} />
-            <span>VAULT ACTIVATED</span>
-          </div>
+        
+        {/* HIDDEN PANEL TRIGGER */}
+        <div className="p-6 bg-indigo-900/20 border border-indigo-500/30 rounded-[30px] cursor-pointer hover:bg-indigo-900/40 transition-all" onClick={() => setShowHidden(true)}>
+           <p className="text-[10px] font-black text-indigo-400 uppercase mb-1">Advanced Rhythm</p>
+           <h4 className="text-sm font-bold text-white italic">"Unlock 300% Growth"</h4>
         </div>
       </aside>
 
       {/* MAIN STAGE */}
+      <main className="flex-1 p-12 relative">
+        {/* ORIENTATION WIZARD */}
+        {step < 3 && (
+          <div className="absolute top-20 left-20 z-50 bg-[#4f46e5] p-6 rounded-3xl max-w-xs shadow-2xl animate-bounce">
+            <p className="font-bold text-sm">{wizardSteps[step].text}</p>
+            <button onClick={() => setStep(step + 1)} className="mt-4 bg-white text-indigo-600 px-4 py-1 rounded-full text-xs font-black">Next Sequence</button>
+          </div>
+        )}
+
+        <header className="flex justify-between items-start mb-16">
+          <div>
+            <h2 className="text-4xl font-bold tracking-tight">System Aligned</h2>
+            <p className="text-slate-500 mt-2 italic font-medium">"Success is a rhythm. Timing is the weapon."</p>
+          </div>
+          <div className="bg-[#111827] p-5 rounded-3xl border border-slate-800 flex items-center gap-4">
+             <div className="text-right">
+               <p className="text-[10px] text-slate-500 font-bold uppercase">Today's Alignment</p>
+               <p className="text-xl font-bold text-emerald-400">88% CLEAR</p>
+             </div>
+             <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500"><Zap size={24} /></div>
+          </div>
+        </header>
+
+        {/* HIDDEN PANEL MODAL */}
+        {showHidden && (
+          <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-6">
+            <div className="max-w-xl w-full bg-[#111827] p-12 rounded-[40px] border-2 border-indigo-500 shadow-[0_0_100px_rgba(79,70,229,0.2)]">
+               <h2 className="text-3xl font-black text-white mb-6">UNSEEN PATHS</h2>
+               <p className="text-slate-400 mb-8 text-lg">Are you ready to harmonize your Light Path with your production? We have decoded a 300% income surge through specific Timing and Frequency adjustments.</p>
+               <div className="space-y-4">
+                 <p className="text-indigo-400 font-bold">1. Have you noticed repeating numbers in your sales data?</p>
+                 <div className="flex gap-4">
+                   <button className="flex-1 py-3 bg-slate-800 rounded-xl hover:bg-indigo-600 transition-all">Yes</button>
+                   <button className="flex-1 py-3 bg-slate-800 rounded-xl hover:bg-slate-700 transition-all">Not Yet</button>
+                 </div>
+                 <p className="mt-8 text-xs text-slate-600">The Hidden Panel requires a one-time Frequency Adjustment Fee ($297).</p>
+                 <button onClick={() => setShowHidden(false)} className="w-full mt-6 py-4 bg-indigo-600 rounded-2xl font-black uppercase tracking-widest shadow-xl">Initiate Checkout</button>
+               </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+           <div className="bg-[#111827] p-10 rounded-[40px] border border-slate-800 shadow-2xl">
+              <h3 className="text-slate-500 text-[10px] font-black uppercase mb-4 tracking-[0.2em]">Live Feed</h3>
+              <p className="text-2xl font-bold">Waiting for your first Alignment...</p>
+           </div>
+           <div className="bg-gradient-to-br from-[#4f46e5] to-[#312e81] p-10 rounded-[40px] shadow-2xl">
+              <h3 className="text-indigo-200 text-[10px] font-black uppercase mb-4 tracking-[0.2em]">Daily Rhythm</h3>
+              <p className="text-3xl font-black italic">"The Oracle favors the bold. Feb 9 is your peak window. Prepare the comparisons."</p>
+           </div>
+        </div>
+      </main>
+    </div>
+  );
+}      {/* MAIN STAGE */}
       <main className="flex-1 p-10 overflow-y-auto">
         <header className="flex justify-between items-center mb-10">
           <div>

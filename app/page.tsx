@@ -1,40 +1,89 @@
 'use client'
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ELITE_AGENTS } from '../lib/constants';
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { BETA_AGENTS, ELITE_AGENTS } from '../lib/constants'
 
 export default function Home() {
-  const [email, setEmail] = useState('');
-  const [elite, setElite] = useState<any>(null);
-  const router = useRouter();
+  const [email, setEmail] = useState('')
+  const [showEliteCard, setShowEliteCard] = useState(false)
+  const [eliteName, setEliteName] = useState('')
+  const [eliteQuote, setEliteQuote] = useState('')
+  const router = useRouter()
 
-  const handleEntry = () => {
-    const lower = email.toLowerCase().trim();
-    if (!lower) return;
-    window.localStorage.setItem('curispro_email', lower);
-    const eliteData = ELITE_AGENTS[lower];
-    if (eliteData) {
-      setElite(eliteData);
-    } else {
-      router.push('/dashboard');
+  const handleActivate = () => {
+    const lower = email.toLowerCase().trim()
+    if (!lower) return
+
+    const elite = ELITE_AGENTS[lower as keyof typeof ELITE_AGENTS]
+    if (elite) {
+      setEliteName(elite.name)
+      setEliteQuote(elite.quote)
+      setShowEliteCard(true)
+      return
     }
-  };
 
-  if (elite) {
+    // For chosen beta or standard agents, just go straight to dashboard for now
+    if (BETA_AGENTS.includes(lower) || lower) {
+      router.push('/dashboard')
+    }
+  }
+
+  const enterFromElite = () => {
+    setShowEliteCard(false)
+    router.push('/dashboard')
+  }
+
+  // Elite welcome card (matches your screenshot)
+  if (showEliteCard) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-6">
-        <div className="max-w-md w-full bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl text-center border-t-indigo-500">
-          <h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-8 italic">CurisPro</h1>
-          <h2 className="text-2xl font-bold text-yellow-400 mb-2 font-serif">Welcome Home, {elite.name}</h2>
-          <p className="text-sm text-slate-400 mb-8 italic">{elite.quote}</p>
-          <button onClick={() => router.push('/dashboard')} className="w-full bg-indigo-600 py-4 rounded-xl font-black tracking-widest uppercase hover:bg-indigo-500 transition-all shadow-[0_0_20px_rgba(79,70,229,0.4)]">
-            {elite.freeDays === 1095 ? '3 Years' : '88 Days'} ACCESS GRANTED
+        <div className="max-w-md w-full bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl text-center">
+          <h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-8">CurisPro</h1>
+          <h2 className="text-xl font-bold text-yellow-400 mb-2">
+            Welcome Home, {eliteName}
+          </h2>
+          <p className="text-sm text-slate-300 mb-8">{eliteQuote}</p>
+          <button
+            onClick={enterFromElite}
+            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm tracking-widest uppercase"
+          >
+            88 Days ACCESS GRANTED
           </button>
-          <p className="mt-8 text-[10px] tracking-[0.5em] text-slate-600 uppercase">CODE: 33 • 11 • 22 • 88</p>
+          <p className="mt-6 text-[10px] tracking-[0.35em] text-slate-500 uppercase">
+            CODE: 33 • 11 • 22 • 88
+          </p>
         </div>
       </main>
-    );
+    )
   }
+
+  // Default login (without price)
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-6">
+      <div className="max-w-md w-full bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl text-center">
+        <h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-8">
+          CurisPro
+        </h1>
+        <input
+          type="email"
+          placeholder="Agent Email"
+          className="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 text-center text-lg mb-6"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button
+          onClick={handleActivate}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-bold text-lg transition-transform hover:scale-105"
+        >
+          Activate Frequency
+        </button>
+        <p className="mt-6 text-[10px] tracking-[0.35em] text-slate-500 uppercase">
+          CODE: 33 • 11 • 22 • 88
+        </p>
+      </div>
+    </main>
+  )
+}  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-6">

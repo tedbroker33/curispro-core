@@ -22,8 +22,11 @@ export default function Home() {
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-6">
         <div className="max-w-md w-full bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl text-center border-t-indigo-500">
           <h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-8 italic">CurisPro</h1>
-          <h2 className="text-2xl font-bold text-yellow-400 mb-2 font-serif underline decoration-indigo-500/50 underline-offset-4">Welcome Home, {elite.name}</h2>
-          <p className="text-sm text-slate-300 mb-8 italic font-light leading-relaxed">"{elite.quote}"</p>
+          <div className="space-y-1 mb-8">
+            <h2 className="text-xl font-bold text-slate-400 uppercase tracking-widest">Welcome Home</h2>
+            <h2 className="text-3xl font-black text-yellow-400 font-serif underline decoration-indigo-500/50 underline-offset-8">{elite.name}</h2>
+          </div>
+          <p className="text-sm text-slate-300 mb-10 italic font-light leading-relaxed">"{elite.quote}"</p>
           <button onClick={() => router.push('/dashboard')} className="w-full bg-indigo-600 py-4 rounded-xl font-black tracking-widest uppercase hover:bg-indigo-500 transition-all shadow-[0_0_30px_rgba(79,70,229,0.5)] animate-pulse">
             {elite.freeDays === 1095 ? '3 Years' : '88 Days'} ACCESS GRANTED
           </button>
@@ -35,7 +38,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white p-6 text-center">
-      <div className="max-w-md w-full bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl">
+      <div className="max-w-md w-full bg-slate-900 p-12 rounded-3xl border border-slate-800 shadow-2xl">
         <h1 className="text-5xl font-bold tracking-tighter text-indigo-500 mb-10 italic">CurisPro</h1>
         <div className="space-y-4">
           <input type="email" placeholder="Agent Credentials" className="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 text-center text-lg mb-2 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:opacity-30" onChange={(e) => setEmail(e.target.value)} />

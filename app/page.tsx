@@ -64,4 +64,34 @@ export default function Home() {
       )}
     </main>
   );
+}          />
+          <button 
+            onClick={handleEntry}
+            className="w-full bg-[#4f46e5] hover:bg-[#4338ca] py-5 rounded-2xl font-bold text-xl shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+          >
+            Activate Frequency
+          </button>
+        </div>
+        <p className="text-[10px] tracking-[0.6em] text-slate-500 uppercase">Code: 33 • 11 • 22 • 88</p>
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/98 backdrop-blur-md flex items-center justify-center z-50 p-6">
+          <div className="bg-[#111827] border-2 border-[#4f46e5] p-10 rounded-[40px] max-w-sm w-full text-center shadow-[0_0_100px_rgba(79,70,229,0.3)]">
+            <h2 className="text-2xl font-bold text-yellow-400 mb-4">{welcomeTitle}</h2>
+            <p className="text-slate-300 text-lg italic mb-8">"{quote}"</p>
+            <div className="p-4 bg-[#4f46e5]/10 rounded-2xl border border-indigo-500/30 mb-8">
+              <p className="text-xs uppercase font-bold tracking-widest text-indigo-400">Status: Access Granted</p>
+            </div>
+            <button 
+              onClick={() => router.push(`/dashboard?email=${email}`)}
+              className="w-full bg-[#4f46e5] py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700"
+            >
+              ENTER DASHBOARD
+            </button>
+          </div>
+        </div>
+      )}
+    </main>
+  );
 }}

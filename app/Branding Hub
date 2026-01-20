@@ -1,0 +1,689 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Sparkles,
+  Star,
+  TrendingUp,
+  Target,
+  Award,
+  CheckCircle,
+  AlertCircle,
+  ExternalLink,
+  Copy,
+  Search,
+  Globe,
+  MessageSquare,
+  Camera,
+  Users,
+  Zap
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+const brandingChecklist = [
+  {
+    category: 'Google My Business (Critical)',
+    priority: 'critical',
+    impact: 10,
+    estimatedTime: 45,
+    tasks: [
+      {
+        title: 'Claim & Verify Your Google Business Profile',
+        description: 'This is THE most important thing for local SEO. You show up in Google Maps and local search.',
+        steps: [
+          'Go to google.com/business',
+          'Search for your business name',
+          'Claim it (or create new listing)',
+          'Verify via phone, postcard, or email',
+          'Add: Hours, phone, website, service area'
+        ],
+        proTip: 'Use your EXACT business name as it appears on your license. Consistency = credibility.'
+      },
+      {
+        title: 'Optimize Your GBP Listing',
+        description: 'Complete profile = 3x more visibility than incomplete',
+        steps: [
+          'Upload 10+ high-quality photos (you, office, clients)',
+          'Select primary category: "Insurance Agency" or "Health Insurance Agency"',
+          'Add secondary categories: "Life Insurance Agency", "Auto Insurance"',
+          'Write description with keywords: "[City] health insurance broker helping families & businesses"',
+          'Add products/services: Medicare, ACA, Group Health, etc.'
+        ],
+        proTip: 'Post weekly updates (new plans, tips, announcements) - Google rewards active listings'
+      },
+      {
+        title: 'Get Google Reviews',
+        description: 'Reviews are the #1 ranking factor for local search',
+        steps: [
+          'After every happy client, text them: "Would you mind leaving a quick Google review? [Your GBP Link]"',
+          'Make it easy: Create a short link (bit.ly) to your review page',
+          'Respond to EVERY review (even bad ones professionally)',
+          'Aim for 50+ reviews in first 6 months',
+          'Template: "Hi [Name]! Thanks for trusting me with your insurance. If you have 60 seconds, a Google review would mean the world: [link]"'
+        ],
+        proTip: 'Businesses with 40+ reviews get 3x more clicks than those with <10'
+      }
+    ]
+  },
+  {
+    category: 'LinkedIn Optimization',
+    priority: 'high',
+    impact: 9,
+    estimatedTime: 60,
+    tasks: [
+      {
+        title: 'Professional Profile Makeover',
+        description: 'Your LinkedIn = your digital resume. Make it count.',
+        steps: [
+          'Professional headshot (suit/business attire, plain background, smiling)',
+          'Banner image: Your location + tagline ("Helping [City] Families Save on Health Insurance")',
+          'Headline: Not just "Insurance Agent" → "I Help [Target] Save $X on Health Insurance | Licensed in [States]"',
+          'About section: Tell your story in first person. Why you do this. Who you help. Your unique value.',
+          'Add skills: Health Insurance, Medicare, Employee Benefits, ACA, Customer Service',
+          'Get 3+ recommendations from clients'
+        ],
+        proTip: 'Profiles with photos get 21x more profile views and 9x more connection requests'
+      },
+      {
+        title: 'Content Strategy',
+        description: 'Post 3-5x/week to stay top-of-mind',
+        steps: [
+          'Monday: Industry news or tip',
+          'Wednesday: Client success story (anonymous)',
+          'Friday: Weekend health/wellness tip',
+          'Use hashtags: #HealthInsurance #Medicare #SmallBusiness #[YourCity]',
+          'Engage with others\' posts (comment on 10 posts/day)'
+        ],
+        proTip: 'LinkedIn algorithm rewards consistent posting. Set a schedule and stick to it.'
+      }
+    ]
+  },
+  {
+    category: 'Facebook Business Page',
+    priority: 'high',
+    impact: 8,
+    estimatedTime: 40,
+    tasks: [
+      {
+        title: 'Create Professional Business Page',
+        description: 'Free marketing tool + credibility builder',
+        steps: [
+          'Create page (don\'t use personal profile)',
+          'Use same profile pic as LinkedIn (consistency)',
+          'Cover photo: Team photo or branded graphic',
+          'Fill out About section completely',
+          'Add CTA button: "Book Appointment" (link to your calendar)',
+          'Verify your page (blue checkmark)',
+          'Enable reviews'
+        ],
+        proTip: 'Invite all your friends to like the page. Social proof matters.'
+      },
+      {
+        title: 'Content Calendar',
+        description: 'Post 4-5x/week minimum',
+        steps: [
+          'Use our templates from the Templates page',
+          'Share helpful tips, not sales pitches',
+          'Go Live once/month: "Ask me anything about insurance"',
+          'Share client testimonials (with permission)',
+          'Join and post in local groups'
+        ],
+        proTip: 'Posts with images get 2.3x more engagement than text-only'
+      }
+    ]
+  },
+  {
+    category: 'Instagram Presence',
+    priority: 'medium',
+    impact: 7,
+    estimatedTime: 30,
+    tasks: [
+      {
+        title: 'Set Up Professional Account',
+        description: 'Reach younger demographic (26-45)',
+        steps: [
+          'Switch to Business Account',
+          'Use same profile pic (brand consistency)',
+          'Bio: Name | What you do | Who you serve | CTA',
+          'Example: "Sarah Johnson | Medicare Specialist | Helping Phoenix Seniors | 📞 Book Free Consultation ⬇️"',
+          'Add link to your calendar/website',
+          'Highlight key info in Story Highlights'
+        ],
+        proTip: 'Add your location to every post - helps local discovery'
+      },
+      {
+        title: 'Content Strategy',
+        description: 'Mix education + personality',
+        steps: [
+          'Post 3-4x/week: Tips, behind-the-scenes, client wins',
+          'Use Reels (Instagram pushes these hard)',
+          'Stories daily: Quick tips, polls, Q&A',
+          'Use local hashtags: #[City]Business #[City]Life',
+          'Engage with local accounts'
+        ],
+        proTip: 'Reels get 3x more reach than regular posts. Use trending audio.'
+      }
+    ]
+  },
+  {
+    category: 'Personal Website/Landing Page',
+    priority: 'high',
+    impact: 9,
+    estimatedTime: 120,
+    tasks: [
+      {
+        title: 'Build Simple Website',
+        description: 'You need a home base online',
+        steps: [
+          'Use Wix, Squarespace, or WordPress',
+          'Keep it simple: Home, About, Services, Contact',
+          'Include: Your photo, story, credentials, calendar booking',
+          'Add testimonials with photos',
+          'SEO: Title = "[Your Name] - Health Insurance Agent in [City]"',
+          'Meta description: Include city + services'
+        ],
+        proTip: 'Don\'t overthink it. A simple 1-page site with booking link is 10x better than nothing.'
+      },
+      {
+        title: 'SEO Optimization',
+        description: 'Get found on Google search',
+        steps: [
+          'Use your city name 5-10 times on homepage',
+          'Include keywords: "health insurance", "Medicare", "small business insurance"',
+          'Add FAQ section (answers common questions)',
+          'Blog 1-2x/month about local insurance topics',
+          'Get backlinks: Guest post on local blogs, chamber of commerce directory'
+        ],
+        proTip: 'Google loves local content. Write about "[City] health insurance" topics.'
+      }
+    ]
+  },
+  {
+    category: 'Online Directories',
+    priority: 'medium',
+    impact: 7,
+    estimatedTime: 90,
+    tasks: [
+      {
+        title: 'Claim All Directory Listings',
+        description: 'Get listed everywhere for SEO + credibility',
+        steps: [
+          'Yelp for Business',
+          'Yellow Pages',
+          'Better Business Bureau',
+          'Chamber of Commerce',
+          'Nextdoor Business',
+          'Apple Maps',
+          'Bing Places',
+          'Angi/HomeAdvisor',
+          'Thumbtack'
+        ],
+        proTip: 'Use EXACT same NAP (Name, Address, Phone) everywhere. Consistency = SEO boost.'
+      }
+    ]
+  },
+  {
+    category: 'Personal Branding',
+    priority: 'medium',
+    impact: 8,
+    estimatedTime: 60,
+    tasks: [
+      {
+        title: 'Professional Photoshoot',
+        description: 'Invest in quality photos',
+        steps: [
+          'Hire photographer ($200-500)',
+          'Get: Headshot, full-body, action shots, office/location shots',
+          'Bring 3 outfit changes',
+          'Use these EVERYWHERE (website, social, directories)',
+          'Update annually'
+        ],
+        proTip: 'People buy from people. Your face = your brand. Make it professional and approachable.'
+      },
+      {
+        title: 'Create Your "Story"',
+        description: 'Why should people choose YOU?',
+        steps: [
+          'Write your origin story (why you became an agent)',
+          'Define your niche (who you serve best)',
+          'Identify your unique value prop',
+          'Create 30-second elevator pitch',
+          'Practice it until natural'
+        ],
+        proTip: 'Template: "I help [target audience] with [specific problem] so they can [desired outcome]. I\'m different because [unique approach]."'
+      }
+    ]
+  }
+];
+
+const quickWins = [
+  {
+    title: 'Google My Business Post',
+    time: '5 min',
+    impact: 'High',
+    description: 'Post a weekly update to your GBP. Google rewards active profiles.',
+    action: 'Post now'
+  },
+  {
+    title: 'Ask for 1 Review',
+    time: '2 min',
+    impact: 'Very High',
+    description: 'Text your last happy client: "Mind leaving a quick Google review? [link]"',
+    action: 'Send text'
+  },
+  {
+    title: 'LinkedIn Comment',
+    time: '10 min',
+    impact: 'Medium',
+    description: 'Comment thoughtfully on 5 posts in your industry',
+    action: 'Go to LinkedIn'
+  },
+  {
+    title: 'Update Profile Photo',
+    time: '5 min',
+    impact: 'Medium',
+    description: 'Use the SAME professional photo across all platforms',
+    action: 'Update now'
+  }
+];
+
+const seoKeywords = [
+  '[City] health insurance agent',
+  '[City] Medicare agent',
+  'health insurance broker near me',
+  'best health insurance [city]',
+  'small business health insurance [city]',
+  'Medicare supplement [city]',
+  'ACA insurance agent [city]',
+  'health insurance quotes [city]',
+  'group health insurance [city]',
+  'Medicare Advantage [city]'
+];
+
+export default function BrandingHub() {
+  const [user, setUser] = useState(null);
+  const [brandingTasks, setBrandingTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const currentUser = await base44.auth.me();
+      setUser(currentUser);
+
+      const tasksData = await base44.entities.BrandingTask.filter({ agent_email: currentUser.email });
+      setBrandingTasks(tasksData);
+      setCompletedTasks(tasksData.filter(t => t.status === 'completed'));
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
+  const totalTasks = brandingChecklist.reduce((sum, cat) => sum + cat.tasks.length, 0);
+  const completionRate = totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0;
+
+  const copyKeywords = () => {
+    const text = seoKeywords.join('\n');
+    navigator.clipboard.writeText(text);
+    toast.success('Keywords copied to clipboard!');
+  };
+
+  const handleTaskComplete = async (categoryName, taskTitle) => {
+    try {
+      const existingTask = brandingTasks.find(t => t.title === taskTitle);
+      
+      if (existingTask) {
+        await base44.entities.BrandingTask.update(existingTask.id, {
+          status: 'completed',
+          completed_date: new Date().toISOString().split('T')[0]
+        });
+      } else {
+        await base44.entities.BrandingTask.create({
+          agent_email: user.email,
+          task_type: 'google_business',
+          title: taskTitle,
+          status: 'completed',
+          completed_date: new Date().toISOString().split('T')[0]
+        });
+      }
+
+      await base44.entities.Activity.create({
+        agent_email: user.email,
+        type: 'badge_earned',
+        description: `Completed branding task: ${taskTitle}`,
+        points: 15
+      });
+
+      toast.success('Task completed! +15 points');
+      loadData();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update task');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading branding hub...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900">Branding & SEO Hub</h1>
+              <p className="text-gray-600">Build your brand better than BrandPush.co - step by step</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Progress Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 text-white shadow-xl"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-2xl font-bold mb-2">Your Branding Progress</h3>
+              <p className="text-indigo-100">Complete these tasks to dominate your local market</p>
+            </div>
+            <div className="text-right">
+              <div className="text-6xl font-bold">{completionRate}%</div>
+              <p className="text-indigo-100">Complete</p>
+            </div>
+          </div>
+          <Progress value={completionRate} className="h-3 bg-white/20" />
+          <p className="text-sm text-indigo-100 mt-2">{completedTasks.length} of {totalTasks} tasks completed</p>
+        </motion.div>
+
+        <Tabs defaultValue="checklist" className="mb-6">
+          <TabsList>
+            <TabsTrigger value="checklist">Complete Checklist</TabsTrigger>
+            <TabsTrigger value="quick-wins">Quick Wins</TabsTrigger>
+            <TabsTrigger value="seo-keywords">SEO Keywords</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="checklist">
+            <div className="space-y-6">
+              {brandingChecklist.map((category, i) => {
+                const priorityColors = {
+                  critical: 'from-red-500 to-rose-600',
+                  high: 'from-orange-500 to-amber-600',
+                  medium: 'from-blue-500 to-indigo-600'
+                };
+
+                const priorityBadge = {
+                  critical: 'bg-red-100 text-red-700 border-red-200',
+                  high: 'bg-orange-100 text-orange-700 border-orange-200',
+                  medium: 'bg-blue-100 text-blue-700 border-blue-200'
+                };
+
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Card className="overflow-hidden">
+                      <div className={`bg-gradient-to-r ${priorityColors[category.priority]} p-6 text-white`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-2xl font-bold mb-2">{category.category}</h3>
+                            <div className="flex gap-2">
+                              <Badge className={`${priorityBadge[category.priority]} border`}>
+                                {category.priority.toUpperCase()}
+                              </Badge>
+                              <Badge className="bg-white/20 border-white/30 text-white">
+                                Impact: {category.impact}/10
+                              </Badge>
+                              <Badge className="bg-white/20 border-white/30 text-white">
+                                ~{category.estimatedTime} min
+                              </Badge>
+                            </div>
+                          </div>
+                          <Star className="w-12 h-12 text-white/30" />
+                        </div>
+                      </div>
+
+                      <CardContent className="p-6">
+                        <div className="space-y-6">
+                          {category.tasks.map((task, j) => {
+                            const isCompleted = brandingTasks.some(t => t.title === task.title && t.status === 'completed');
+                            
+                            return (
+                              <div key={j} className={`border-l-4 ${isCompleted ? 'border-green-500' : 'border-gray-300'} pl-4 py-2`}>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex items-start gap-3 flex-1">
+                                    <Checkbox
+                                      checked={isCompleted}
+                                      onCheckedChange={() => handleTaskComplete(category.category, task.title)}
+                                      className="mt-1"
+                                    />
+                                    <div className="flex-1">
+                                      <h4 className={`text-lg font-bold ${isCompleted ? 'text-green-700 line-through' : 'text-gray-900'}`}>
+                                        {task.title}
+                                      </h4>
+                                      <p className="text-gray-600 text-sm mt-1">{task.description}</p>
+                                    </div>
+                                  </div>
+                                  {isCompleted && (
+                                    <CheckCircle className="w-6 h-6 text-green-500" />
+                                  )}
+                                </div>
+
+                                {!isCompleted && (
+                                  <>
+                                    <div className="bg-gray-50 rounded-xl p-4 mt-3">
+                                      <p className="font-semibold text-sm text-gray-700 mb-2">How to do it:</p>
+                                      <ol className="space-y-2">
+                                        {task.steps.map((step, k) => (
+                                          <li key={k} className="text-sm text-gray-700 flex gap-2">
+                                            <span className="font-bold text-indigo-600 min-w-[20px]">{k + 1}.</span>
+                                            <span>{step}</span>
+                                          </li>
+                                        ))}
+                                      </ol>
+                                    </div>
+
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mt-3">
+                                      <p className="text-sm font-semibold text-yellow-900 mb-1">💡 Pro Tip:</p>
+                                      <p className="text-sm text-yellow-800">{task.proTip}</p>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="quick-wins">
+            <div className="grid md:grid-cols-2 gap-6">
+              {quickWins.map((win, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <Card className="h-full hover:shadow-xl transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">{win.title}</CardTitle>
+                        <div className="flex gap-2">
+                          <Badge variant="outline">{win.time}</Badge>
+                          <Badge className={
+                            win.impact === 'Very High' ? 'bg-red-100 text-red-700' :
+                            win.impact === 'High' ? 'bg-orange-100 text-orange-700' :
+                            'bg-blue-100 text-blue-700'
+                          }>
+                            {win.impact}
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 mb-4">{win.description}</p>
+                      <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+                        <Zap className="w-4 h-4 mr-2" />
+                        {win.action}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            <Card className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-green-900">
+                  <TrendingUp className="w-6 h-6" />
+                  Why Quick Wins Matter
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-green-800 space-y-2">
+                <p>• <strong>Google rewards consistency</strong> - Small daily actions compound</p>
+                <p>• <strong>Reviews = trust</strong> - Each review increases conversion by 10%</p>
+                <p>• <strong>Engagement = visibility</strong> - LinkedIn shows your posts to more people when you engage</p>
+                <p>• <strong>Momentum matters</strong> - 5 min/day beats 2 hours once/month</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="seo-keywords">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="w-6 h-6 text-indigo-600" />
+                    Top SEO Keywords for Insurance Agents
+                  </CardTitle>
+                  <Button variant="outline" onClick={copyKeywords}>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-6">
+                  Use these keywords in your website, Google Business Profile, social media bios, and directory listings. 
+                  Replace [City] with your actual city name.
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-3 mb-6">
+                  {seoKeywords.map((keyword, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-gray-700">{keyword}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          navigator.clipboard.writeText(keyword);
+                          toast.success('Copied!');
+                        }}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6">
+                  <h4 className="font-bold text-indigo-900 mb-3">How to Use These Keywords:</h4>
+                  <ul className="space-y-2 text-sm text-indigo-800">
+                    <li className="flex gap-2">
+                      <span className="text-indigo-600">•</span>
+                      <span><strong>Website Title:</strong> "[Your Name] - [City] Health Insurance Agent"</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-indigo-600">•</span>
+                      <span><strong>GBP Description:</strong> "Licensed health insurance broker in [City] helping..."</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-indigo-600">•</span>
+                      <span><strong>Social Bios:</strong> "[City] Medicare Specialist | Helping Seniors Save"</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-indigo-600">•</span>
+                      <span><strong>Blog Posts:</strong> "Best Health Insurance in [City] for 2024"</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-indigo-600">•</span>
+                      <span><strong>Reviews:</strong> Ask clients to mention city in their review</span>
+                    </li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50">
+                <CardHeader>
+                  <CardTitle className="text-lg">Local SEO Tips</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>✓ Include your city name 10-15x on your homepage</p>
+                  <p>✓ Create neighborhood-specific pages ("Medicare in Downtown [City]")</p>
+                  <p>✓ Get listed in local directories (Chamber of Commerce, etc.)</p>
+                  <p>✓ Get backlinks from local blogs and news sites</p>
+                  <p>✓ Post about local events and news on social media</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <CardTitle className="text-lg">Content Ideas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>📝 "Top 5 Health Insurance Plans in [City]"</p>
+                  <p>📝 "[City] Open Enrollment Guide 2024"</p>
+                  <p>📝 "Medicare Costs in [City]: What to Expect"</p>
+                  <p>📝 "Best Insurance for [City] Small Businesses"</p>
+                  <p>📝 "[City] Insurance Agent Reviews & Comparison"</p>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}

@@ -11,3 +11,16 @@ export default function ModuleCard({ title, description }: ModuleCardProps) {
     </div>
   );
 }
+```
+
+4. Commit with message: `feat: add ModuleCard component`
+
+---
+
+## ✅ SOLUTION 2: Fix Import Path (If File Exists)
+
+If the component file exists but still can't be found, edit the group page:
+
+**Click to edit:**
+```
+https://github.com/tedBroker33/CurisPro-Core/edit/main/app/dashboard/group/page.tsx

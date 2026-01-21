@@ -65,12 +65,3 @@ export default function ScannerPage() {
     </div>
   );
 }
-```
-
----
-
-## ✅ 3-STEP PROCESS
-
-### **STEP 1:** Click this link
-```
-https://github.com/tedBroker33/CurisPro-Core/edit/main/app/admin/scanner/page.tsx

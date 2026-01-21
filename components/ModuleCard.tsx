@@ -10,4 +10,4 @@ export default function ModuleCard({ title, description }: ModuleCardProps) {
       <p className="text-gray-600">{description}</p>
     </div>
   );
-}
+}fix: clean ModuleCard component

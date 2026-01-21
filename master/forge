@@ -1,0 +1,16 @@
+// Embedded in Dashboard Sidebar (Owner Only)
+{isOwner && (
+  <SidebarButton 
+    icon={Wrench}
+    label="Architect's Forge"
+    href="/master/forge"
+  />
+)}
+
+// Forge Interface
+<ForgeCanvas 
+  onDrag={(element) => autoSnapTo33pxGrid(element)}
+  aiCopilot={(command) => generateTailwindCode(command)}
+  livePreview={true}
+  publishMode="instant" // Changes go live in 3 seconds
+/>
